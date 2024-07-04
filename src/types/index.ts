@@ -59,8 +59,8 @@ export interface ISuccessData {
 
 export type TForm = { valid: boolean };
 
-// export type TFormOfPayment = Pick<IOrder, 'payment' | 'address' | null>;
-export type TFormOfPayment = Pick<IOrder, 'payment' | 'address'>;
+export type TFormOfPayment = Pick<IOrder, 'payment' | 'address' | null>;
+// export type TFormOfPayment = Pick<IOrder, 'payment' | 'address'>;
 
 export type TFormOfContact = Pick<IOrder, 'email' | 'phone'>;
 
