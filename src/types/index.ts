@@ -38,7 +38,7 @@ export interface IOrderData {
 	clearOrder(): void;
 	clearUserContacts(): void;
 	checkValidation(): boolean;
-  getOrderData(): IOrder;
+  	getOrderData(): IOrder;
 }
 
 export interface IBasketData {
