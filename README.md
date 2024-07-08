@@ -203,7 +203,7 @@ export type TPayment = 'card' | 'cash';
 
 Также в классе содержатся методы для работы с данными объекта, который формирует класс
 
-- `addPurchase(product: IProduct): void` - добавляет товар в корзину
+- `addPurchase(product: IProduct): void` - добавляет товар в начало списка в корзине.
 - `deletePurchase(id: string): void` - удаляет товар из корзины
 - `getQuantity(): number` - возвращает общее количество товаров в корзине.
 - `clearBasket(): void` - очищать корзину.
