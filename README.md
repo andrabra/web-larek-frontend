@@ -192,15 +192,15 @@ export type TPayment = 'card' | 'cash';
 
 В полях класса хранятся следующие данные:
 
-- `protected _cards: IProduct[]` - массив объектов карточек.
+- `protected _cards: ICard[]` - массив объектов карточек.
 - `protected _preview: string | null;` - id карточки, выбранной для просмотра в модальном окне.
 - `events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
 
-- `getCard(cardId: string): IProduct | undefined` - параметром принимает id карточки и возвращает карточку, соответствующую переданному id.
-- `set cards(value: IProduct[]): void` - записывает массив товаров.
-- `get cards(): IProduct[]` - возвращает массив товаров.
+- `getCard(cardId: string): ICard | undefined` - параметром принимает id карточки и возвращает карточку, соответствующую переданному id.
+- `set cards(value: ICard[]): void` - записывает массив товаров.
+- `get cards(): ICard[]` - возвращает массив товаров.
 - `get preview(): string | null` - возвращает выбранную карточку товара.
 
 #### Класс BasketData
