@@ -1,5 +1,7 @@
 # Проектная работа "Веб-ларек"
 
+[Ссылка на репозиторий](https://github.com/andrabra/web-larek-frontend)
+
 Стек: HTML, SCSS, TS, Webpack
 
 Структура проекта:
