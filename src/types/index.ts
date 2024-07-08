@@ -39,4 +39,4 @@ export type TModalFormOfPayment = Pick<IOrder, 'methodOfPayment' | 'address'>;
 export type TModalContacts = Pick<IOrder, 'email' | 'phone'>;
 export type TModalSuccess = Pick<IBasket, 'getQuantity'>;
 
-export type TPayment = 'card' | 'cash';
+export type TPayment = 'online' | 'cash';
