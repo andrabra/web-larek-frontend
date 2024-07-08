@@ -17,6 +17,15 @@ export interface IOrder {
 	total: number;
 }
 
+export interface IOrderData {
+	paymentInfo: TModalFormOfPayment;
+	contactInfo: TModalContacts;
+	clearOrder(): void;
+	clearUserContacts(): void;
+	checkValidation(): boolean;
+  getOrderData(): IOrder;
+}
+
 export interface ICardsData {
 	cards: ICard[];
 	preview: string | null;

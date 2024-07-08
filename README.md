@@ -227,24 +227,27 @@ export type TPayment = 'card' | 'cash';
 - `get total(value: number): void` - получение общей суммы заказа.
 
 #### Класс OrderData
-Класс отвечает за логику создания и хранение данных для формирования заказа.\
+Класс отвечает за хранение и логику работы с данными заказа.\
+Конструктор класса принимает инстант брокера событий.
+- `constructor(events: IEvents)`
 
 В полях класса хранятся следующие данные:
-- `protected _methodOfPayment: TPayment` - способ оплаты.
-- `protected _address: string` - адрес.
-- `protected _email: string` - почтовый адрес.
-- `protected _phone: string` - телефон.
-- `protected _items: string[]` - список id товаров заказа.
-- `protected _total: number` - суммарная стоимость заказа.
+- `_paymentInfo: TModalFormOfPayment` - платежная информация
+- `_contactInfo: TModalContacts` - контактная информация
+- `order: IOrder` - заказ
+- `events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных
 
-Также в классе содержатся методы для работы с данными объекта, который формирует класс
-- `set methodOfPayment(value: TPayment): void` - запись способа оплаты
-- `set email(value: string): void` - запись email покупателя
-- `set phone(value: string): void` - запись номера телефона покупателя
-- `set address(value: string): void` - запись адреса покупателя
-- `set total(value: number): void` - запись общей суммы покупок
-- `set items(value: string[])` - запись id товаров заказа
-- `get customerInfo(): ICustomer` - возвращение всей информации о заказе в формате необходимом для отправки в теле post запроса на сервер.
+Так же класс предоставляет набор методов для взаимодействия с этими данными.
+- `getOrderData(): IOrder`- для получения данных о заказе
+- `clearOrder(): void` - очищает данные о способе оплаты и адресе
+- `clearUserContacts(): void` - очищает контактные данные покупателя
+- `checkValidation(): boolean` - проверяет данные заказа
+
+Также в классе содержатся методы для работы с данными объекта, который формирует класс:
+ - `set paymentInfo(info: TModalFormOfPayment): void` - запись платежной информации
+ - `get paymentInfo(): TModalFormOfPayment` - возвращает данные о способе оплаты и адресе
+ - `set contactInfo(info: TModalContacts): void` - запись контактной информации
+ - `get contactInfo(): TModalContacts` - возвращает контактную информаци
 
 ### Слой представления - View
 #### Класс View
