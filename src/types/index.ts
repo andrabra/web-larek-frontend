@@ -18,14 +18,14 @@ export interface IOrder {
 }
 
 export interface ICardsData {
-	_cards: ICard[];
+	cards: ICard[];
 	preview: string | null;
 	getCard(id: string): ICard | undefined;
 }
 
 export interface IBasket {
-	_purchases: ICard[];
-	_total: number;
+	purchases: ICard[];
+	total: number;
 	addPurchase(value: ICard): void;
 	deletePurchase(id: string): void;
 	clearBasket(): void;

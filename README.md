@@ -210,3 +210,23 @@ export type TPayment = 'card' | 'cash';
 - `getTotal(): number` - устанавливает итоговую стоимость.
 - `getIdList(): string[]` - для получения списка товаров в корзине по уникальному идентификатору.
 - `get total(value: number): void` - получение общей суммы заказа.
+
+#### Класс OrderData
+Класс отвечает за логику создания и хранение данных для формирования заказа.\
+
+В полях класса хранятся следующие данные:
+- `_methodOfPayment: TPayment` - способ оплаты.
+- `_address: string` - адрес.
+- `_email: string` - почтовый адрес.
+- `_phone: string` - телефон.
+- `_items: string[]` - список id товаров заказа.
+- `_total: number` - суммарная стоимость заказа.
+
+Также в классе содержатся методы для работы с данными объекта, который формирует класс
+- `set methodOfPayment(value: TPayment): void` - запись способа оплаты
+- `set email(value: string): void` - запись email покупателя
+- `set phone(value: string): void` - запись номера телефона покупателя
+- `set address(value: string): void` - запись адреса покупателя
+- `set total(value: number): void` - запись общей суммы покупок
+- `set items(value: string[])` - запись id товаров заказа
+- `get customerInfo(): ICustomer` - возвращение всей информации о заказе в формате необходимом для отправки в теле post запроса на сервер.
