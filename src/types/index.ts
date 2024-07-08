@@ -1,78 +1,42 @@
 export interface ICard {
-	id: string;
+	_id: string;
 	description: string;
 	image: string;
 	title: string;
 	category: string;
-	price?: number;
-	isInBasket: boolean;
-	index: number;
-}
-
-export interface IProduct {
-	id: string;
-	description?: string;
-	image: string;
-	title: string;
-	category: string;
-	price?: number;
-}
-
-export interface ICardsData {
-	cards: IProduct[];
-	getCard(cardId: string): IProduct | undefined;
+	price: number | null;
+	inBasket: boolean;
 }
 
 export interface IOrder {
-	payment: TPayment;
+	methodOfPayment: TPayment;
+	address: string;
 	email: string;
 	phone: string;
-	address: string;
-	total: number;
 	items: string[];
-}
-
-export interface IOrderData {
-	paymentInfo: TFormOfPayment;
-	contactInfo: TFormOfContact;
-	clearOrder(): void;
-	clearUserContacts(): void;
-	checkValidation(): boolean;
-  	getOrderData(): IOrder;
-}
-
-export interface IBasketData {
-	cardsInBasket: IProduct[];
 	total: number;
-	addProductInBasket(product: IProduct): void;
-	deleteProductFromBasket(id: string): void;
+}
+
+export interface ICardsData {
+	_cards: ICard[];
+	preview: string | null;
+	getCard(id: string): ICard | undefined;
+}
+
+export interface IBasket {
+	_purchases: ICard[];
+	_total: number;
+	addPurchase(value: ICard): void;
+	deletePurchase(id: string): void;
 	clearBasket(): void;
+	getQuantity(): number;
 	getTotal(): number;
-	isInBasket(productId: string): boolean;
-	getProductsInBasket(): IProduct[];
-	getProductIdsInBasket(): string[];
+	getIdList(): string[];
 }
 
-export interface ISuccessData {
-	orderSuccess: TSuccessData;
-}
+export type TModalBasket = Pick<ICard, 'title' | 'price'>;
+export type TModalFormOfPayment = Pick<IOrder, 'methodOfPayment' | 'address'>;
+export type TModalContacts = Pick<IOrder, 'email' | 'phone'>;
+export type TModalSuccess = Pick<IBasket, 'getQuantity'>;
 
-export type TForm = { valid: boolean };
-
-export type TFormOfPayment = Pick<IOrder, 'payment' | 'address' | null>;
-// export type TFormOfPayment = Pick<IOrder, 'payment' | 'address'>;
-
-export type TFormOfContact = Pick<IOrder, 'email' | 'phone'>;
-
-export type TSuccessData = { id: string; total: string };
-
-export type TPayment = 'card' | 'cash' | null;
-
-export type FormErrors = Partial<Record<keyof IOrder, string>>;
-
-export enum ErrorStatus {
-	EmptyEmail = 'Укажите email!',
-	EmptyPhone = 'Укажите телефон!',
-	EmptyAddress = 'Укажите адрес!',
-	EmptyPayment = 'Выберите способ оплаты!',
-}
+export type TPayment = 'card' | 'cash';
