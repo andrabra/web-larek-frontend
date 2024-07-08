@@ -75,13 +75,26 @@ export interface IOrder {
 }
 ```
 
+Интерфейс для хранения и манипуляции с данными заказа
+
+```
+export interface IOrderData {
+	paymentInfo: TModalFormOfPayment;
+	contactInfo: TModalContacts;
+	clearOrder(): void;
+	clearUserContacts(): void;
+	checkValidation(): boolean;
+    getOrderData(): IOrder;
+}
+```
+
 Интерфейс для хранения модели данных карточек
 
 ```
 export interface ICardsData {
 	products: ICard[];
 	preview: string | null;
-	getProduct(id: string): ICard | undefined;
+	getCard(id: string): ICard | undefined;
 }
 ```
 
@@ -96,7 +109,7 @@ export interface IBasket {
 	checkProduct(id: string): boolean;
 	getTotal(): number;
 	getIdList(): string[];
-	clear(): void;
+	clearBasket(): void;
 }
 ```
 
@@ -221,7 +234,7 @@ export type TPayment = 'card' | 'cash';
 - `addPurchase(product: IProduct): void` - добавляет товар в начало списка в корзине.
 - `deletePurchase(id: string): void` - удаляет товар из корзины
 - `getQuantity(): number` - возвращает общее количество товаров в корзине.
-- `clearBasket(): void` - очищать корзину.
+- `clearBasket(): void` - очищает корзину.
 - `getTotal(): number` - устанавливает итоговую стоимость.
 - `getIdList(): string[]` - для получения списка товаров в корзине по уникальному идентификатору.
 - `get total(value: number): void` - получение общей суммы заказа.
