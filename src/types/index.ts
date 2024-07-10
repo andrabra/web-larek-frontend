@@ -26,9 +26,17 @@ export interface IOrderData {
   getOrderData(): IOrder;
 }
 
+export interface IProduct{
+	id: string;
+	description?: string;
+	image: string;
+	title: string;
+	category: string;
+	price?: number;
+}
+
 export interface ICardsData {
 	cards: ICard[];
-	preview: string | null;
 	getCard(id: string): ICard | undefined;
 }
 
