@@ -225,9 +225,6 @@ events.on('contacts:submit', () => {
 	// Удаляем ненужное свойство
 	delete orderForServer.methodOfPayment;
 
-	// console.log(orderForServer);
-	console.log(orderData.getOrderData());
-
 	api
 		.postOrder(orderForServer)
 		.then((result) => {

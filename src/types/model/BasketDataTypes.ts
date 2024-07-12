@@ -1,8 +1,8 @@
 import { ICard } from '../view/CardsViewTypes';
 import { IProduct } from './ProductsDataTypes';
+
 export interface IBasketData {
 	cardsInBasket: IProduct[];
-	total: number;
 
 	addProductInBasket(product: IProduct): void;
 	deleteProductFromBasket(id: string): void;
@@ -15,7 +15,7 @@ export interface IBasketData {
 
 export interface IBasket {
 	purchases: ICard[];
-	total: number;
+	// total: number;
 	addPurchase(value: ICard): void;
 	deletePurchase(id: string): void;
 	clearBasket(): void;

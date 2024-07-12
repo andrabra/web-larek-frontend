@@ -41,10 +41,6 @@ export class BasketData extends Model implements IBasketData {
     this._total = 0;
   }
 
-  get total() {
-    return this._total;
-  }
-
   get cardsInBasket() {
     return this._cardsInBasket;
   }

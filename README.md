@@ -9,11 +9,14 @@
 - src/ — исходные файлы проекта
 - src/components/ — папка с TS компонентами
 - src/components/base/ — папка с базовым кодом
+- src/components/common - папка со служебным кодом
+- src/components/model - папка с кодом моделей данных
+- src/components/view - папка с кодом моделей отображения
 
 Важные файлы:
 
 - src/pages/index.html — HTML-файл главной страницы
-- src/types/index.ts — файл с типами
+- src/types — папка с типами
 - src/index.ts — точка входа приложения
 - src/scss/styles.scss — корневой файл стилей
 - src/utils/constants.ts — файл с константами
@@ -49,21 +52,52 @@ yarn build
 
 ## Данные и типы данных используемые в приложении
 
-Карточка товара
+
+Карточка товара используемая в слое отображения
 
 ```
 export interface ICard {
-	_id: string;
+	id: string;
+	index: number;
 	description: string;
 	image: string;
+	inBasket: boolean;
 	title: string;
 	category: string;
 	price: number | null;
-	inBasket: boolean;
 }
 ```
 
-Данные заказа для оплаты
+Интерфейс для отображения всего каталога карточек товаров
+
+```
+export interface ICardsData {
+	cards: IProduct[];
+	getCard(id: string): IProduct | undefined;
+}
+```
+
+Интерфейс для обработчика событий при нажатии на карточку
+
+```
+export interface ICardAction {
+	onClick: (event: MouseEvent) => void;
+}
+```
+
+Интерфейс для объекта карточки, который приходит с бэкенда
+```
+export interface IProduct{
+	id: string;
+	description?: string;
+	image: string;
+	title: string;
+	category: string;
+	price?: number;
+}
+```
+
+Интерфейс для объекта заказа
 
 ```
 export interface IOrder {
@@ -72,44 +106,52 @@ export interface IOrder {
 	email: string;
 	phone: string;
 	items: string[];
+	total: number;
 }
 ```
 
-Интерфейс для хранения и манипуляции с данными заказа
+Интерфейс для модели данных заказа
 
 ```
 export interface IOrderData {
 	paymentInfo: TModalFormOfPayment;
-	contactInfo: TModalContacts;
+	contactInfo: TModalFormOfContacts;
 	clearOrder(): void;
 	clearUserContacts(): void;
 	checkValidation(): boolean;
-    getOrderData(): IOrder;
+  getOrderData(): any;
 }
-```
-
-Интерфейс для хранения модели данных карточек
 
 ```
-export interface ICardsData {
-	products: ICard[];
-	preview: string | null;
-	getCard(id: string): ICard | undefined;
-}
-```
 
-Интерфейс для корзины
+Интерфейс для объекта корзины
 
 ```
 export interface IBasket {
 	purchases: ICard[];
+	total: number;
 	addPurchase(value: ICard): void;
 	deletePurchase(id: string): void;
+	clearBasket(): void;
 	getQuantity(): number;
-	checkProduct(id: string): boolean;
 	getTotal(): number;
 	getIdList(): string[];
+}
+```
+
+Интерфейс для модели данных корзины
+
+```
+export interface IBasketData {
+	cardsInBasket: IProduct[];
+
+	addProductInBasket(product: IProduct): void;
+	deleteProductFromBasket(id: string): void;
 	clearBasket(): void;
+	getTotal(): number;
+	isInBasket(productId: string): boolean;
+	getProductsInBasket(): IProduct[];
+	getProductIdsInBasket(): string[];
 }
 ```
 
@@ -186,7 +228,7 @@ export type TPayment = 'card' | 'cash';
 #### Класс Model
 Абстрактный базовый класс, шаблон для классов данных.
 Конструктор класса принимает инстант брокера событий и объект содержащий данные модели. Используется `Partial<T>`, чтобы разрешить частичное заполнение данных.
-- `constructor(data: Partial<T>, protected events: IEvents)`
+- `constructor(protected events: IEvents)`
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
 `emitChanges`
@@ -206,38 +248,36 @@ export type TPayment = 'card' | 'cash';
 В полях класса хранятся следующие данные:
 
 - `protected _cards: ICard[]` - массив объектов карточек.
-- `protected _preview: string | null;` - id карточки, выбранной для просмотра в модальном окне.
-- `events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных
 
-Так же класс предоставляет набор методов для взаимодействия с этими данными.
+Так же класс предоставляет набор методов(сеттеров и геттеров) для взаимодействия с этими данными.
 
-- `getCard(cardId: string): ICard | undefined` - параметром принимает id карточки и возвращает карточку, соответствующую переданному id.
-- `set cards(value: ICard[]): void` - записывает массив товаров.
+- `getCard(productId: string): IProduct | undefined ` - параметром принимает id карточки и возвращает карточку, соответствующую переданному id.
+- `set cards(data: IProduct[]): void` - записывает массив товаров.
 - `get cards(): ICard[]` - возвращает массив товаров.
-- `get preview(): string | null` - возвращает выбранную карточку товара.
 
 #### Класс BasketData
 
-Класс отвечает за логику и хранение данных товаров, добавленных в корзину.\
+Класс расширяет базовый класс `Model` и отвечает за логику и хранение данных товаров, добавленных в корзину.\
 Конструктор класса принимает инстант брокера событий.
 
-`constructor(events: IEvents)`
+`constructor(protected events: IEvents)`
 
 В полях класса хранятся следующие данные:
 
-- `protected _purchases: IProduc[]` - коллекция товаров в корзине
-- `protected _total: number` - итоговая стоимость товаров в корзине
-- `events: IEvents` - экземпляр класса EventEmitter для инициации событий при изменении данных
+- `protected _cardsInBasket: IProduct[]` - коллекция товаров в корзине
+- `protected _total: number` - суммарная стоимость товаров в корзине.
 
-Также в классе содержатся методы для работы с данными объекта, который формирует класс
+Также в классе содержатся методы(сеттеры и геттеры) для работы с данными объекта, который формирует класс
 
-- `addPurchase(product: IProduct): void` - добавляет товар в начало списка в корзине.
-- `deletePurchase(id: string): void` - удаляет товар из корзины
-- `getQuantity(): number` - возвращает общее количество товаров в корзине.
-- `clearBasket(): void` - очищает корзину.
-- `getTotal(): number` - устанавливает итоговую стоимость.
-- `getIdList(): string[]` - для получения списка товаров в корзине по уникальному идентификатору.
-- `get total(value: number): void` - получение общей суммы заказа.
+- `isInBasket(productId: string)` - метод для поиска значения id товара
+- `getProductsInBasket(): IProduct[]` - метод возвращает товары добавленные в корзину.
+- `addProductInBasket(product: IProduct)` - метод позволяющий добавлять товары в корзину.
+- `deleteProductFromBasket(id: string)` - метод, позволяющий удалять товар из корзины.
+- `clearBasket()` - метод для очиски корзины.
+- `getTotal()` - метод, возвращающий общую сумму товаров в корзине.
+- `getProductIdsInBasket(): string[]` - метод возвращает массив id товаров, которые лежат в корзине.
+
+- `get cardsInBasket()` - возвращает массив объектов товаров в корзине
 
 #### Класс OrderData
 Класс отвечает за хранение и логику работы с данными заказа.\
@@ -247,11 +287,8 @@ export type TPayment = 'card' | 'cash';
 В полях класса хранятся следующие данные:
 - `_paymentInfo: TModalFormOfPayment` - платежная информация
 - `_contactInfo: TModalContacts` - контактная информация
-- `order: IOrder` - заказ
-- `events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
-- `getOrderData(): IOrder`- для получения данных о заказе
 - `clearOrder(): void` - очищает данные о способе оплаты и адресе
 - `clearUserContacts(): void` - очищает контактные данные покупателя
 - `checkValidation(): boolean` - проверяет данные заказа
@@ -260,184 +297,108 @@ export type TPayment = 'card' | 'cash';
  - `set paymentInfo(info: TModalFormOfPayment): void` - запись платежной информации
  - `get paymentInfo(): TModalFormOfPayment` - возвращает данные о способе оплаты и адресе
  - `set contactInfo(info: TModalContacts): void` - запись контактной информации
- - `get contactInfo(): TModalContacts` - возвращает контактную информаци
+ - `get contactInfo(): TModalContacts` - возвращает контактную информацию.
 
 ### Слой представления - View
-#### Класс View
-Абстрактный класс View является дженериком и служит шаблоном для классов слоя представления
 
-Поля:
+#### Класс Component
+Абстрактный базовый класс. Получает в конструктор `protected readonly container: HTMLElement` и `protected readonly events?: IEvents`. Предоставляет собой инструментарий для работы с DOM-элементами. 
 
-- `protected _container: HTMLElement` - DOM элемент, передаваемый в конструкторе
-- `protected events: IEvents` - объект класса EventEmitter для инициации событий при изменении данных.
+В классе содержатся следующие методы
+- `toggleClass(element: HTMLElement, className: string, force?: boolean)` - метод, позволяющий переключать класс.
+- `protected setText(element: HTMLElement, value: unknown)` - метод, который устанавливает текст в DOM элемент.
+- `setDisabled(element: HTMLElement, state: boolean)` - смена статуса блокировки элемента.
+- `protected setHidden(element: HTMLElement)` - скрывает элемент.
+- `protected setVisible(element: HTMLElement)` - показывает элемент.
+- `protected setImage(element: HTMLImageElement, src: string, alt?: string)` - устанавливает изображение с альтернативным текстом.
+- `render(data?: Partial<T>): HTMLElement` - возвращает корневой дом элемент, добавляя к нему свойства переданные в `data`.
 
-Параметры в конструкторе:
+#### Класс Modal
+Расширяет родительский класс `Component`. Отвечает за создание компонента модального окна с разным содержимым.
 
-- `container: HTMLElement` - DOM элемент компонента
-- `events: IEvents` - объект класса EventEmitter для инициации событий при изменении данных.
+В полях класса содержатся следующие данные
+- `closeButton: HTMLButtonElement` - кнопка закрытия модалки, существует у всех модальных окон.
+- `content: HTMLDivElement` - содержимое модального окна.
 
-Также в классе содержатся методы для работы с данными объекта, который формирует класс:
+В параметры конструктора класс принимает следующие значения
+- `protected container: HTMLElement` - контейнер для компонента, который передается в родительский класс через `super`.
+- `protected events: IEvents` - экземпляр брокера событий.
 
-- `render(data?: Partial<T>): HTMLElement` - возвращает отрисованный html элемент по переданным данным
+Класс предоставляет набор методов для работы с модальным окном
+- `open()` - открывает модальное окно, добавляя к контейнеру соответствующий класс из разметки и генерируя событие открытия модального окна.
+- `close()` - закрывает модальное окно, удаляя к контейнеру соответствующий класс из разметки и генерируя событие закрытия модального окна.
+- `handleEscUp(event: KeyboardEvent)` - метод для закрытия модального окна по кнопке Escape.
+- `render(obj: HTMLElement): HTMLElement` - метод для рендера содержимого модального окна в дочерних классах. Должен заменять содержимое родительского класса.
 
 #### Класс Card
-Расширяет класс View. Является абстрактным классом, имеющим общие поля у трех разновидностей карточек в приложении:
-1. карточка в каталоге на главной странице (CardCatalog);
-2. карточка подробного описания товара в модальном окне (CardPreview);
-3. строка с товаром в корзине (CardBasket).
+Расширяет родительский класс `Component`. Класс отвечает за формирование компонента карточки для отображения на странице.
 
 Поля:
+- `protected _id: string;` - id товара с сервера.
+- `protected _title: HTMLHeadingElement;` - Название карточки товара.
+- `protected _price: HTMLSpanElement;` - цена товара.
+- `protected _image: HTMLImageElement;` - изображение товара.
+- `protected _category: HTMLSpanElement;` - категория товара.
+- `protected _description: HTMLParagraphElement;` - описание товара.
+- `protected button: HTMLButtonElement;` - кнопка для добавления в корзину.
+- `protected _index: HTMLSpanElement;` - индекс карточки, для нумерации товаров в корзине.
 
-- `protected _id: string` - id карточки товара
-- `protected _title: HTMLHeadingElement` - HTML элемент, отвечающий за отображение имени товара
-- `protected _price: HTMLSpanElement` - html элемент, отвечающий за отображение цены товара.
 
 Параметры в конструкторе:
 
-- параметры `View`.
+- `protected template: HTMLTemplateElement` - шаблон карточки из разметки.
+- `protected events: IEvents` - объект брокера событий.
+- `action?: ICardAction` - объект для назначения пользовательских событий.
 
-Также в классе содержатся методы для работы с данными объекта, который формирует класс:
+Также в классе содержатся сеттеры для работы с данными объекта, который формирует класс:
 
-- `set id(value: string): void` - запись id карточки товара
-- `get id(): string` - получение id карточки товара
-- `set title(value: string): void` - запись имени карточки товара
-- `get title(): string` - получение имени карточки товара
-- `set price(value: string): void` - запись цены товара
-- `get price(): string` - получение цены товара.
+- `set category(category: string)` - позволяет установить категорию и класс для стилизации.
+- `set index(index: number)` - позволяет установить индекс карточки, для нумерации товаров в корзине.
+- `set id(id: string)` - позволяет установить id для карточки.
+- `set title(title: string)` - устанавливает название карточки.
+- `set price(price: string)` - устанавливает цену товара.
+- `set description(description: string)` - устанавливает описание товара.
+- `set image(src: string)` - устанавливает изображение в карточку товара.
+- `set inBasket(state: boolean)` - меняет текст кнопки, в зависимости от нахождения товара в корзине.
 
-#### Класс CardCatalog
-Расширяет класс Card, также является классом дженериком. Служит для отображения карточки в каталоге на главной странице приложения.
-
-Поля:
-
-- `protected _image: HTMLImageElemen`t - html элемент, отвечающий за отображение изображения товара
-- `protected _category: HTMLSpanElement` - html элемент, отвечающий за отображение категории товара.
-Параметры в конструкторе:
-
-параметры `Card`.
-
-Также в классе содержатся методы для работы с данными объекта, который формирует класс:
-
-- `protected addCSSClassCategory(value: string): void` - служебный метод, предназначенный для присваивания определенного css класса html элементу категории товара в зависимости от ее названия (установка фонового цвета)
-- `set image(src: string): void` - запись данных изображения товара
-- `set category(value: string): void` - запись данных категории товара
-- `get category(): string` - получение названия категории товара.
-
-#### Класс CardPreview
-Расширяет класс CardCatalog. Служит для предварительного просмотра карточки товара с более детальным описанием и возможностью добавления его в корзину.
+#### Класс Basket
+Расширяет класс Component. Служит для отображения компонента корзины и товаров в ней.
 
 Поля:
 
-- `protected _description: HTMLParagraphElement` - html элемент, отвечающий за отображение описания товара
-- `protected buttonBuyDelete: HTMLButtonElement` - кнопка для покупки товара или удаления товара из корзины в случае, если он уже был добавлен в нее.
+- `protected _list: HTMLUListElement | null` - cписок товаров в корзине.
+- `protected _total: HTMLSpanElement` - общее сумма.
+- `protected _button: HTMLButtonElement` - кнопка покупки.
 
 Параметры в конструкторе:
 
-параметры класса `CardCatalog`.
+- `protected template: HTMLTemplateElement` - шаблон для отображения компонента корзины.
+- `protected events: IEvents` - экземпляр брокера событий.
 
 Также в классе содержатся методы для работы с данными объекта, который формирует класс:
 
-- `set description(value: string): void` - записвает описание товара
-- `set priceCheck(value: boolean): void` - записывает булево значение для блокировки/разблокировки кнопки добавления в корзину, если в модальном окне открыт бесценный товар: true - блокирует кнопку, false - разблокирует кнопку
-- `get priceCheck(): boolean` - возвращает булево значение для блокировки/разблокировки кнопки добавления в корзину
-- `set state(value: boolean)` - устанавливает состояние кнопки:
-1. в модальном окне открыт бесценный товар - кнопка заблокирована и ей присвоена надпись "Не продается"
-2. в модальном окне открыт товар, который уже находится в корзине - кнопка работает на удаление данного товара из корзины и ей присвоена надпись "Убрать из корзины"
-3. в модальном окне открыт товар, которого нет в корзине - кнопка работает на добавление данного товара в корзину и ей присвоена надпись "Купить".
-
-#### Класс CardBasket
-Расширяет класс Card. Служит для отображения карточки товара в корзине.
-
-Поля:
-
-- `_index: HTMLSpanElement` - html элемент, отвечающий за отображение порядкового номера в корзине
-- `buttonDelCard: HTMLButtonElement` - иконка корзины, по клику на которую удаляется соответствующая карточка.
-
-Параметры в конструкторе:
-
-параметры класса `Card`.
-
-Также в классе содержатся методы для работы с данными объекта, который формирует класс:
-
-- `set index(value: number): void` - записывает порядковый номер карточки в корзине.
+- `set list(cards: HTMLElement[])` - позволяет заполнить список товаров к корзине.
+- `set total(total: number)` - устанавливает общую сумму для покупки.
 
 #### Класс Page
-Расширяет класс View. За основной контейнер берет главную страницу приложения. Служит для отображения корзины в шапке сайта и количества товаров в ней, также служит для отображения основного блока с кталогом карточек товаров.
+Расширяет класс Component. Отвечает за отображение главной страницы приложения.
 
 Поля:
 
 - `protected _catalog: HTMLElement` - контейнер для отображения карточек товаров
-- `protected buttonBasket: HTMLButtonElement` - иконка(кнопка), по нажатию на которую открывается модальное окно с корзиной
+- `protected _basket: HTMLButtonElement` - иконка(кнопка), по нажатию на которую открывается модальное окно с корзиной
 - `protected _counter: HTMLSpanElement` - html элемент, показывающий количество добавленных товаров в корзину
-- `protected screen: HTMLDivElement` - html элемент, отвечающий за внутренннее содержимое страницы(экран).
+- `protected _wrapper: HTMLElement` - html элемент, отвечающий за внутренннее содержимое страницы(экран).
 
 Параметры в конструкторе:
-
-параметры класса `View`.
+- `protected container: HTMLElement` - 
+- protected events: IEvents
 
 Также в классе содержатся методы для работы с данными объекта, который формирует класс:
 
 - `set catalog(cards: HTMLElement[]): void` - записывает карточки в _catalog для отображения их на главной странице
 - `set counter(value: string): void` - записывает количество добавленных товаров в корзину
 - `lockScreen(value: boolean): void` - данный метод служит для блокировки/разблокировки экрана(окна), чтоб не было его прокрутки при открытии/закрытии модального окна.
-
-#### Класс Basket
-Расширяет класс View. Отображает модальное окно корзины с добавленными в нее товарами.
-
-Поля
-
-- `protected _cardsList: HTMLUListElement` - html элемент, отвечающий за отображение списка карточек в корзине
-- `protected _total: HTMLSpanElement` - html элемент, отвечающий за отображение общей стоимости товаров
-- `protected buttonСheckout: HTMLButtonElement` - кнопка "Оформить".
-
-Параметры в конструкторе:
-
-параметры класса `View`.
-
-Также в классе содержатся методы для работы с данными объекта, который формирует класс:
-
-- `set cardsList(cards: HTMLElement[]): void` - устанавливает список карточек добавленных товаров в корзину
-- `set emptyCheck(state: boolean): void` - для блокировки кнопки "Оформить", если корзина пуста
-- `set total(value: number)` - устанавливает общую стоимость товаров в html элемент _totalPrice.
-
-#### Класс Modal
-Расширяет класс View. Реализует модальное окно. Устанавливает слушатели на клик в оверлей и кнопку-крестик для закрытия попапа.
-
-Поля:
-
-- `protected _content: HTMLElement` - содержимое модального окна
-- `protected buttonClose: HTMLButtonElement` - кнопка закрытия модального окна.
-
-Параметры в конструкторе:
-
-параметры `View`.
-
-Также в классе содержатся методы для работы с данными объекта, который формирует класс:
-
-- `set content(value: HTMLElement): void` - для возможности изменения внутреннего содержимого модального окна
-- `open(): void` - метод отображения модального окна
-- `close(): void` - метод для закрытия модального окна.
-
-#### Класс Form
-Расширяет класс View. Является абстрактным классом дженериком и шаблоном для форм приложения. Реализует пользовательский функционал с формами.
-
-Поля:
-
-- `protected container: HTMLFormElement` - соответствующая форма
-- `protected inputsList: HTMLInputElement[]` - массив input элементов формы
-- `protected submitButton: HTMLButtonElement` - кнопка отправки формы
-- `protected _errorMessage: HTMLSpanElement` - html элемент для отображения ошибок формы.
-Параметры в конструкторе:
-
-параметры `View`.
-
-Также в классе содержатся методы для работы с данными объекта, который формирует класс:
-
-- `get valid(): boolean` - получения статуса валидности формы
-- `set valid(value: boolean):void` - сеттер для блокировки (true) / разблокировки (false) кнопки submit
-- `set errorMessage(value: string)` - установка текста ошибок
-- `clear():void` - очистка формы при её закрытии
-- `render(data: Partial<T> & TForm ): HTMLElement` - модернизированный render View для форм: учитывает установку обязательных полей valid и errorMessage.
 
 #### Класс FormOrder
 Расширяет класс Form. Первое окно при оформлении заказа. Форма для указания способа оплаты и адреса доставки.

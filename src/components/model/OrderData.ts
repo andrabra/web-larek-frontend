@@ -7,7 +7,7 @@ import { TModalFormOfContacts } from '../../types/view/FormContactsViewTypes';
 export class OrderData implements IOrderData {
 	protected _paymentInfo: TModalFormOfPayment;
 	protected _contactInfo: TModalFormOfContacts;
-	protected order: IOrder;
+
 	formErrors: FormErrors = {};
 
 	constructor(protected events: IEvents) {
@@ -27,6 +27,24 @@ export class OrderData implements IOrderData {
 			email: '',
 			phone: '',
 		};
+	}
+	checkValidation() {
+		const errors: typeof this.formErrors = {};
+		if (!this._paymentInfo.methodOfPayment) {
+			errors.methodOfPayment = ErrorStatus.EmptyPayment;
+		}
+		if (!this._paymentInfo.address) {
+			errors.address = ErrorStatus.EmptyAddress;
+		}
+		if (!this._contactInfo.email) {
+			errors.email = ErrorStatus.EmptyEmail;
+		}
+		if (!this._contactInfo.phone) {
+			errors.phone = ErrorStatus.EmptyPhone;
+		}
+		this.formErrors = errors;
+		this.events.emit('formErrors:change', this.formErrors);
+		return Object.keys(errors).length === 0;
 	}
 
 	set paymentInfo(info: TModalFormOfPayment) {
@@ -50,29 +68,6 @@ export class OrderData implements IOrderData {
 	}
 
 	get contactInfo() {
-		return this._contactInfo;
-	}
-
-	checkValidation() {
-		const errors: typeof this.formErrors = {};
-		if (!this._paymentInfo.methodOfPayment) {
-			errors.methodOfPayment = ErrorStatus.EmptyPayment;
-		}
-		if (!this._paymentInfo.address) {
-			errors.address = ErrorStatus.EmptyAddress;
-		}
-		if (!this._contactInfo.email) {
-			errors.email = ErrorStatus.EmptyEmail;
-		}
-		if (!this._contactInfo.phone) {
-			errors.phone = ErrorStatus.EmptyPhone;
-		}
-		this.formErrors = errors;
-		this.events.emit('formErrors:change', this.formErrors);
-		return Object.keys(errors).length === 0;
-	}
-
-	getOrderData() {
 		return this._contactInfo;
 	}
 }

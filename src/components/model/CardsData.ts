@@ -20,9 +20,9 @@ export class CardsData extends Model implements ICardsData {
 		return this._cards;
 	}
 
-	getCard(cardId: string): IProduct | undefined {
-		const product = this._cards.find((card) => card.id === cardId);
-		if (!product) throw Error(`Product with id ${cardId} not found`);
+	getCard(productId: string): IProduct | undefined {
+		const product = this._cards.find((card) => card.id === productId);
+		if (!product) throw Error(`Product with id ${productId} not found`);
 
 		return product;
 	}

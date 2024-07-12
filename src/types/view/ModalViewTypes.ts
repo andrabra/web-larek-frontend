@@ -12,8 +12,8 @@ export type TPayment = 'card' | 'cash';
 export type FormErrors = Partial<Record<keyof IOrder, string>>;
 
 export enum ErrorStatus {
-	EmptyEmail = 'Необходимо указать email',
-	EmptyPhone = 'Необходимо указать телефон',
-	EmptyAddress = 'Необходимо указать адрес',
+	EmptyEmail = 'Укажите почту',
+	EmptyPhone = 'Укажите телефон',
+	EmptyAddress = 'Укажите адрес',
 	EmptyPayment = 'Выберите способ оплаты',
 }

@@ -1,15 +1,14 @@
-import { IProduct } from "../model/ProductsDataTypes";
+import { IProduct } from '../model/ProductsDataTypes';
 
 export interface ICard {
 	id: string;
+	index: number;
 	description: string;
 	image: string;
+	inBasket: boolean;
 	title: string;
 	category: string;
 	price: number | null;
-
-	inBasket: boolean;
-  index: number;
 }
 
 export interface ICardsData {
@@ -20,4 +19,3 @@ export interface ICardsData {
 export interface ICardAction {
 	onClick: (event: MouseEvent) => void;
 }
-
