@@ -1,15 +1,16 @@
+import { Modal } from './components/common/Modal';
 import { Success } from './components/View/Success';
 import { FormContacts } from './components/View/FormOfContacts';
 import { FormPayment } from './components/View/FormOfPayment';
 import { OrderData } from './components/Model/OrderData';
 import { Basket } from './components/View/Basket';
-import { Modal } from './components/View/Modal';
+
 import { BasketData } from './components/Model/BasketData';
 import { Card } from './components/View/Card';
 import { Page } from './components/View/Page';
 import { IProduct } from './types/model/ProductsDataTypes';
 import { API_URL, CDN_URL } from './utils/constants';
-import { ActionAPI } from './components/AppApi';
+import { AppApi } from './components/AppApi';
 import { EventEmitter } from './components/base/events';
 import { CardsData } from './components/Model/CardsData';
 import './scss/styles.scss';
@@ -17,7 +18,7 @@ import { cloneTemplate, ensureElement } from './utils/utils';
 import { ICard } from './types/view/CardsViewTypes';
 import { IOrder } from './types/model/OrderDataTypes';
 
-//Находим шаблоны
+// Находим все шаоблоны из разметки
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const templateCardPreview = ensureElement<HTMLTemplateElement>('#card-preview');
 const templateCardBasket = ensureElement<HTMLTemplateElement>('#card-basket');
@@ -29,19 +30,9 @@ const templateSuccess = ensureElement<HTMLTemplateElement>('#success');
 const containerPage = ensureElement<HTMLElement>('.page');
 const containerModal = ensureElement<HTMLDivElement>('#modal-container');
 
-const testArr = [
-	{
-		id: '854cef69-976d-4c2a-a18c-2aa45046c390',
-		description: 'Если планируете решать задачи в тренажёре, берите два.',
-		image: '/5_Dots.svg',
-		title: '+1 час в сутках',
-		category: 'софт-скил',
-		price: 750,
-	},
-];
-
+// Создаем экземпляры классов 
 const events = new EventEmitter();
-const api = new ActionAPI(CDN_URL, API_URL);
+const api = new AppApi(CDN_URL, API_URL);
 
 // Создаем экземпляры классов слоя данных
 const cardsData = new CardsData(events);
@@ -61,6 +52,16 @@ events.onAll((event) => {
 	console.log('event: ', event);
 });
 
+// Блокировка страницы при открытии модального окна
+events.on('modal:open', () => {
+	page.locked = true;
+});
+
+// Снятие блокировки страницы при закрытии модального окна
+events.on('modal:close', () => {
+	page.locked = false;
+});
+
 // Получаем товары с бэкенда и записываем их в объект
 api
 	.getProducts()
@@ -69,19 +70,19 @@ api
 	})
 	.catch(console.error);
 
-// Функция рендера карточек с товарами на главной странице
-function renderCards(products: IProduct[]) {
-	page.catalog = products.map((product) =>
+// При изменении массива карточек вызываем функцию рендера карточек на странице
+events.on('cards:changed', (cards: IProduct[]) => {
+	page.catalog = cards.map((product) =>
 		new Card(cardCatalogTemplate, events, {
 			onClick: () => events.emit('preview:selected', product),
 		}).render({
 			...product,
 		})
 	);
-}
+});
 
-// Функция рендера карточек с товарами в модальном окне
-function renderPreview(product: IProduct) {
+// Отображение карточки в модальном окне
+events.on('preview:selected', (product: ICard) => {
 	modal.render(
 		new Card(templateCardPreview, events, {
 			onClick: () => events.emit('preview:submit', product),
@@ -90,10 +91,43 @@ function renderPreview(product: IProduct) {
 			inBasket: basketData.isInBasket(product.id),
 		})
 	);
-}
+	modal.open();
+});
 
-// Функция рендера модального окна корзины
-function renderBasket() {
+// Добавление/удаление карточки в/из корзину  и ререндер модалки карточки
+events.on('preview:submit', (product: ICard) => {
+	if (basketData.isInBasket(product.id)) {
+		basketData.deleteProductFromBasket(product.id);
+		modal.render(
+			new Card(templateCardPreview, events, {
+				onClick: () => events.emit('preview:submit', product),
+			}).render({
+				...product,
+				inBasket: basketData.isInBasket(product.id),
+			})
+		);
+	} else {
+		basketData.addProductInBasket(product);
+		modal.render(
+			new Card(templateCardPreview, events, {
+				onClick: () => events.emit('preview:submit', product),
+			}).render({
+				...product,
+				inBasket: basketData.isInBasket(product.id),
+			})
+		);
+	}
+});
+
+// Реакция счетчика товаров в корзине на главной странице
+events.on('basket:changed', () => {
+	page.counter = basketData.cardsInBasket.length;
+});
+
+//обработаем событие удаления товара из корзины
+events.on('basket:delete', (data: IProduct) => {
+	basketData.deleteProductFromBasket(data.id);
+ 	// ререндерим корзину
 	modal.render(
 		basket.render({
 			total: basketData.getTotal(),
@@ -110,54 +144,26 @@ function renderBasket() {
 			}),
 		})
 	);
-}
-
-// Блокировка страницы при открытии модального окна
-events.on('modal:open', () => {
-	page.locked = true;
-});
-
-// Снятие блокировки страницы при закрытии модального окна
-events.on('modal:close', () => {
-	page.locked = false;
-});
-
-// При изменении массива карточек вызываем функцию рендера карточек на странице
-events.on('cards:changed', (cards: IProduct[]) => {
-	renderCards(cards);
-});
-
-// Отображение карточки в модальном окне
-events.on('preview:selected', (product: ICard) => {
-	renderPreview(product);
-	modal.open();
-});
-
-// Добавление карточки в корзину
-events.on('preview:submit', (product: ICard) => {
-	if (basketData.isInBasket(product.id)) {
-		basketData.deleteProductFromBasket(product.id);
-		renderPreview(product);
-	} else {
-		basketData.addProductInBasket(product);
-		renderPreview(product);
-	}
-});
-
-// Реакция счетчика товаров в корзине на главной странице
-events.on('basket:changed', () => {
-	page.counter = basketData.cardsInBasket.length;
-});
-
-//обработаем событие удаления товара из корзины
-events.on('basket:delete', (data: IProduct) => {
-	basketData.deleteProductFromBasket(data.id);
-	renderBasket();
 });
 
 //обработаем событие открытия корзины
 events.on('basket:open', () => {
-	renderBasket();
+	modal.render(
+		basket.render({
+			total: basketData.getTotal(),
+			list: basketData.cardsInBasket.map((product: IProduct, index: number) => {
+				const card = new Card(templateCardBasket, events, {
+					onClick: () => events.emit('basket:delete', product),
+				});
+				return card.render({
+					title: product.title,
+					id: product.id,
+					price: product.price,
+					index: ++index,
+				});
+			}),
+		})
+	);
 	modal.open();
 });
 
@@ -219,7 +225,7 @@ events.on('contacts:submit', () => {
 	// Удаляем ненужное свойство
 	delete orderForServer.methodOfPayment;
 
-	console.log(orderForServer);
+	// console.log(orderForServer);
 	console.log(orderData.getOrderData());
 
 	api

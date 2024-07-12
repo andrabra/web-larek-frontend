@@ -73,6 +73,6 @@ export class OrderData implements IOrderData {
 	}
 
 	getOrderData() {
-		return this.order;
+		return this._contactInfo;
 	}
 }

@@ -4,13 +4,13 @@ import { TSuccessData } from '../types/view/ModalSuccessViewTypes';
 import { ApiListResponse, Api } from './base/api';
 
 
-export interface IActionAPI {
+export interface IAppApi {
 	getProducts(): Promise<IProduct[]>;
 	getProductById(id: string): Promise<IProduct>;
 	postOrder(order: IOrder): Promise<TSuccessData>;
 }
 
-export class ActionAPI extends Api implements IActionAPI {
+export class AppApi extends Api implements IAppApi {
 	readonly cdn: string;
 
 	constructor(cdn: string, baseUrl: string, options?: RequestInit) {
