@@ -1,5 +1,5 @@
 import { IProduct } from '../../types/model/ProductsDataTypes';
-import { ICard, ICardsData } from '../../types/view/CardsViewTypes';
+import { ICardsData } from '../../types/view/CardsViewTypes';
 import { IEvents } from '../base/events';
 import { Model } from './Model';
 

@@ -13,6 +13,16 @@ export class BasketData extends Model implements IBasketData {
     this.clearBasket();
   }
 
+  getTotal() {
+    return this.cardsInBasket.reduce((res, current) => {
+      return res + current.price;
+    }, 0);
+  }
+
+  getProductIdsInBasket(): string[] {
+    return this.cardsInBasket.filter(card => card.price > 0).map(card => card.id);
+  }
+
   isInBasket(productId: string) {
     const cardId = this.cardsInBasket.find(
       (product) => product.id === productId
@@ -50,13 +60,5 @@ export class BasketData extends Model implements IBasketData {
     this.events.emit('basket:changed', this.cardsInBasket);
   }
 
-  getTotal() {
-    return this.cardsInBasket.reduce((res, current) => {
-      return res + current.price;
-    }, 0);
-  }
 
-  getProductIdsInBasket(): string[] {
-    return this.cardsInBasket.filter(card => card.price > 0).map(card => card.id);
-  }
 }

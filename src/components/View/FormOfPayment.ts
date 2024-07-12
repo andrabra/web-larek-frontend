@@ -1,4 +1,4 @@
-import { TModalFormOfPayment } from './../../types/view/FormPaymentViewTypes';
+import { IFormOfPayment, TModalFormOfPayment } from './../../types/view/FormPaymentViewTypes';
 
 
 import { TPayment } from '../../types/view/ModalViewTypes';
@@ -6,10 +6,7 @@ import { ensureElement } from '../../utils/utils';
 import { IEvents } from '../base/events';
 import { Form } from './Form';
 
-export interface IFormOfPayment {
-	payment: TPayment | null;
-	address: string;
-}
+
 
 export class FormPayment
 	extends Form<TModalFormOfPayment>
@@ -66,6 +63,7 @@ export class FormPayment
 		this.events.emit(`${this.container.name}:valid`);
 	}
 
+
 	set address(value: string) {
 		this.inputAddress.value = value;
 	}
@@ -74,9 +72,7 @@ export class FormPayment
 		return this.inputAddress.value;
 	}
 
-	get payment() {
-		return this._payment;
-	}
+
 
 	protected set payment(value: TPayment | null) {
 		this._payment = value;
@@ -92,4 +88,9 @@ export class FormPayment
 			this.buttonCard.classList.remove('button_alt-active');
 		}
 	}
+
+  get payment() {
+		return this._payment;
+	}
+  
 }

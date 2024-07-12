@@ -15,6 +15,7 @@ export class OrderData implements IOrderData {
 		this.clearUserContacts();
 	}
 
+
 	clearOrder() {
 		this._paymentInfo = {
 			address: '',

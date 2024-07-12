@@ -5,8 +5,6 @@ import { IEvents } from './../base/events';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 
-
-
 export class Page extends Component<IPage> {
 	protected _catalog: HTMLElement;
 	protected _wrapper: HTMLElement;
@@ -34,8 +32,11 @@ export class Page extends Component<IPage> {
 
 	set locked(value: boolean) {
 		if (value) {
+
 			this._wrapper.classList.add('page__wrapper_locked');
+      console.log(this._wrapper);
 		} else {
+      console.log(value);
 			this._wrapper.classList.remove('page__wrapper_locked');
 		}
 	}
@@ -52,5 +53,5 @@ export class Page extends Component<IPage> {
 		this.setText(this._counter, String(value) || '');
 	}
 
-	
+
 }
