@@ -119,7 +119,6 @@ export interface IOrderData {
 	clearOrder(): void;
 	clearUserContacts(): void;
 	checkValidation(): boolean;
-  getOrderData(): any;
 }
 
 ```
