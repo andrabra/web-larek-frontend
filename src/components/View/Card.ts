@@ -71,7 +71,11 @@ export class Card extends Component<ICard> {
 
 	set category(category: string) {
 		this.setText(this._category, category);
-		this._category.classList.add(this.categoryClass(category));
+
+		this.toggleClass(this._category, 'card__category_additional', category === 'дополнительное');
+		this.toggleClass(this._category, 'card__category_soft', category === 'софт-скил');
+		this.toggleClass(this._category, 'card__category_hard', category === 'хард-скил');
+		this.toggleClass(this._category, 'card__category_other', category === 'другое');
 	}
 
 	set index(index: number) {
@@ -99,6 +103,9 @@ export class Card extends Component<ICard> {
 	}
 
 	set inBasket(state: boolean) {
-		this.setText(this.button, state ? 'Удалить из корзины' : 'Добавить в корзину');
+		this.setText(
+			this.button,
+			state ? 'Удалить из корзины' : 'Добавить в корзину'
+		);
 	}
 }

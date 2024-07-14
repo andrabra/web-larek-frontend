@@ -78,19 +78,19 @@ export class FormPayment
 		this._payment = value;
 
 		if (this.payment === 'card') {
-			this.buttonCard.classList.add('button_alt-active');
-			this.buttonCash.classList.remove('button_alt-active');
+      this.toggleClass(this.buttonCard, 'button_alt-active', true);
+      this.toggleClass(this.buttonCash, 'button_alt-active', false);
 		} else if (this.payment === 'cash') {
-			this.buttonCard.classList.remove('button_alt-active');
-			this.buttonCash.classList.add('button_alt-active');
+      this.toggleClass(this.buttonCard, 'button_alt-active', false);
+      this.toggleClass(this.buttonCash, 'button_alt-active', true);
 		} else {
-			this.buttonCash.classList.remove('button_alt-active');
-			this.buttonCard.classList.remove('button_alt-active');
+      this.toggleClass(this.buttonCash, 'button_alt-active', false);
+      this.toggleClass(this.buttonCard, 'button_alt-active', false);
 		}
 	}
 
   get payment() {
 		return this._payment;
 	}
-  
+
 }
