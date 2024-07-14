@@ -54,29 +54,27 @@ export class Card extends Component<ICard> {
 		}
 	}
 
-	protected categoryClass(name: string): string {
-		switch (name.toLowerCase()) {
-			case 'софт-скил':
-				return 'card__category_soft';
-			case 'дополнительное':
-				return 'card__category_additional';
-			case 'кнопка':
-				return 'card__category_button';
-			case 'хард-скил':
-				return 'card__category_hard';
-			default:
-				return 'card__category_other';
-		}
-	}
 
 	set category(category: string) {
-		this.setText(this._category, category);
+    const categoryClasses: { [key: string]: string } = {
+        'дополнительное': 'card__category_additional',
+        'софт-скил': 'card__category_soft',
+        'хард-скил': 'card__category_hard',
+        'другое': 'card__category_other',
+    };
 
-		this.toggleClass(this._category, 'card__category_additional', category === 'дополнительное');
-		this.toggleClass(this._category, 'card__category_soft', category === 'софт-скил');
-		this.toggleClass(this._category, 'card__category_hard', category === 'хард-скил');
-		this.toggleClass(this._category, 'card__category_other', category === 'другое');
-	}
+    // Удаляем все классы перед добавлеием нужного
+    Object.values(categoryClasses).forEach(className => {
+        this.toggleClass(this._category, className, false);
+    });
+
+    // Добавляем нужный класс
+    const className = categoryClasses[category.toLowerCase()] || 'card__category_other';
+    this.toggleClass(this._category, className, true);
+
+    this.setText(this._category, category);
+}
+
 
 	set index(index: number) {
 		this.setText(this._index, String(index));
