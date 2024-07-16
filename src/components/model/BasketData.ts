@@ -3,62 +3,66 @@ import { IEvents } from '../base/events';
 import { IBasketData } from '../../types/model/BasketDataTypes';
 import { IProduct } from '../../types/model/ProductsDataTypes';
 
-
 export class BasketData extends Model implements IBasketData {
-  protected _cardsInBasket: IProduct[];
-  protected _total: number;
+	protected _cardsInBasket: IProduct[];
+	protected _total: number;
 
-  constructor(protected events: IEvents) {
-    super(events);
-    this.clearBasket();
-  }
+	constructor(protected events: IEvents) {
+		super(events);
+		this.clearBasket();
+	}
 
-  getTotal() {
-    return this.cardsInBasket.reduce((res, current) => {
-      return res + current.price;
-    }, 0);
-  }
+	getTotal() {
+		return this.cardsInBasket.reduce((res, current) => {
+			return res + current.price;
+		}, 0);
+	}
 
-  getProductIdsInBasket(): string[] {
-    return this.cardsInBasket.filter(card => card.price > 0).map(card => card.id);
-  }
+	getProductIdsInBasket(): string[] {
+		return this.cardsInBasket
+			.filter((card) => card.price > 0)
+			.map((card) => card.id);
+	}
 
-  isInBasket(productId: string) {
-    const cardId = this.cardsInBasket.find(
-      (product) => product.id === productId
-    );
-    return cardId !== undefined;
-  }
+	get total() {
+		return this.cardsInBasket.reduce((res, current) => {
+			return res + current.price;
+		}, 0);
+	}
+	// сеттер total???
 
-  getProductsInBasket(): IProduct[] {
-    return this.cardsInBasket.filter((item) => this.isInBasket(item.id));
-  }
+	isInBasket(productId: string) {
+		const cardId = this.cardsInBasket.find(
+			(product) => product.id === productId
+		);
+		return cardId !== undefined;
+	}
 
-  addProductInBasket(product: IProduct) {
-    if (!this.isInBasket(product.id)) {
-      this.cardsInBasket = [...this.cardsInBasket, product];
-    }
-  }
+	getProductsInBasket(): IProduct[] {
+		return this.cardsInBasket.filter((item) => this.isInBasket(item.id));
+	}
 
-  deleteProductFromBasket(id: string) {
-    this.cardsInBasket = this.cardsInBasket.filter(
-      (cards) => cards.id !== id
-    );
-  }
+	addProductInBasket(product: IProduct) {
+		if (!this.isInBasket(product.id)) {
+			this.cardsInBasket = [...this.cardsInBasket, product];
+		}
+	}
 
-  clearBasket() {
-    this.cardsInBasket = [];
-    this._total = 0;
-  }
+	deleteProductFromBasket(id: string) {
+		this.cardsInBasket = this.cardsInBasket.filter((cards) => cards.id !== id);
+	}
 
-  get cardsInBasket() {
-    return this._cardsInBasket;
-  }
+	clearBasket() {
+		this.cardsInBasket = [];
+		this._total = 0;
+	}
 
-  protected set cardsInBasket(cardsInBasket: IProduct[]) {
-    this._cardsInBasket = cardsInBasket;
-    this.events.emit('basket:changed', this.cardsInBasket);
-  }
+	get cardsInBasket() {
+		return this._cardsInBasket;
+	}
 
-
+	protected set cardsInBasket(cardsInBasket: IProduct[]) {
+		this._cardsInBasket = cardsInBasket;
+		this.events.emit('basket:changed', this.cardsInBasket);
+	}
 }

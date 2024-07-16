@@ -30,7 +30,7 @@ const templateSuccess = ensureElement<HTMLTemplateElement>('#success');
 const containerPage = ensureElement<HTMLElement>('.page');
 const containerModal = ensureElement<HTMLDivElement>('#modal-container');
 
-// Создаем экземпляры классов 
+// Создаем экземпляры классов
 const events = new EventEmitter();
 const api = new AppApi(CDN_URL, API_URL);
 
@@ -214,7 +214,7 @@ events.on('contacts:submit', () => {
 		email: orderData.contactInfo.email,
 		phone: orderData.contactInfo.phone,
 		items: basketData.getProductIdsInBasket(),
-		total: basketData.getTotal(),
+		total: basketData.total,
 	};
 
 	// Преобразуем его в объект с нужным свойством payment
@@ -224,6 +224,8 @@ events.on('contacts:submit', () => {
 	};
 	// Удаляем ненужное свойство
 	delete orderForServer.methodOfPayment;
+  console.log(basketData.getProductIdsInBasket());
+  console.log(basketData.total);
 
 	api
 		.postOrder(orderForServer)
